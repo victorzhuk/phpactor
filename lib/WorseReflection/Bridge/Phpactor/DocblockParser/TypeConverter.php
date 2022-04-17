@@ -3,7 +3,9 @@
 namespace Phpactor\WorseReflection\Bridge\Phpactor\DocblockParser;
 
 use Phpactor\DocblockParser\Ast\Type\ArrayShapeNode;
+use Phpactor\DocblockParser\Ast\Type\ConstantNode;
 use Phpactor\DocblockParser\Ast\Type\ParenthesizedType;
+use Phpactor\WorseReflection\Core\Reflection\ReflectionMember;
 use Phpactor\WorseReflection\Core\Type\ArrayKeyType;
 use Phpactor\DocblockParser\Ast\Node;
 use Phpactor\DocblockParser\Ast\TypeNode;
@@ -89,6 +91,10 @@ class TypeConverter
 
         if ($type instanceof ParenthesizedType) {
             return $this->convertParenthesized($type, $scope);
+        }
+
+        if ($type instanceof ConstantNode) {
+            return $this->convertConstant($type, $scope);
         }
 
         return new MissingType();
@@ -252,5 +258,31 @@ class TypeConverter
     private function convertParenthesized(ParenthesizedType $type, ?ReflectionScope $scope): Type
     {
         return new PhpactorParenthesizedType($this->convert($type->node));
+    }
+
+    private function convertConstant(ConstantNode $type, ?ReflectionScope $scope): Type
+    {
+        $classNode = $this->convert($type->name);
+
+        if (!$classNode instanceof ReflectedClassType) {
+            return new MissingType();
+        }
+
+        $reflection = $classNode->reflectionOrNull();
+
+        if (null === $reflection) {
+            return new MissingType();
+        }
+
+        $types = [];
+        foreach ($reflection->members()->byMemberType(ReflectionMember::TYPE_CONSTANT) as $constant) {
+            $pattern = preg_quote(str_replace('*', '__ASTERISK__', $type->constant->value));
+            $pattern = str_replace('__ASTERISK__', '.*', $pattern);
+            if (preg_match('{' . $pattern . '}', $constant->name())) {
+                $types[] = $constant->type();
+            }
+        }
+
+        return (new UnionType(...$types))->reduce();
     }
 }
