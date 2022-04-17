@@ -169,6 +169,11 @@ class DocblockParserFactoryTest extends IntegrationTestCase
                 ,
             'array{foo:int,bar:string}',
         ];
+
+        yield 'constant' => [
+            '/** @return Foobar::FOO */',
+            'Foobar::FOO',
+        ];
     }
 
     public function testMethods(): void
