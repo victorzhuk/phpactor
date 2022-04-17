@@ -20,12 +20,13 @@ final class Lexer
         '@[\w-]+', //tag
         '\R', // newline
         ' *', // space
+        '::', // double colon
         ',', // comma
         '\|', // bar (union)
         '=', // equals
         '(', ')', '\{', '\}', '\[', '\]', '<', '>', // brackets
         '\$[a-zA-Z0-9_\x80-\xff]+', // variable
-        '[a-zA-Z\\\][-a-zA-Z0-9_\\\]*', // label
+        '[a-zA-Z\\\][-a-zA-Z0-9_\\\\\*]*', // label
     ];
     private const TOKEN_VALUE_MAP = [
         ']' => Token::T_BRACKET_SQUARE_CLOSE,
@@ -42,6 +43,7 @@ final class Lexer
         '|' => Token::T_BAR,
         '=' => Token::T_EQUALS,
         ':' => Token::T_COLON,
+        '::' => Token::T_DOUBLE_COLON,
     ];
 
     /**
@@ -102,7 +104,7 @@ final class Lexer
         }
 
         if (trim($value) === '*') {
-            return Token::T_PHPDOC_LEADING;
+            return Token::T_ASTERISK;
         }
 
         if (array_key_exists($value, self::TOKEN_VALUE_MAP)) {
@@ -116,7 +118,6 @@ final class Lexer
         if ($value[0] === '@') {
             return Token::T_TAG;
         }
-
         if (trim($value) === '') {
             return Token::T_WHITESPACE;
         }

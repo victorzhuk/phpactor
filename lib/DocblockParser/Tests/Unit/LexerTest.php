@@ -43,14 +43,14 @@ class LexerTest extends TestCase
             ,[
                 [Token::T_PHPDOC_OPEN, '/**'],
                 [Token::T_WHITESPACE, "\n"],
-                [Token::T_PHPDOC_LEADING, ' * '],
+                [Token::T_ASTERISK, ' * '],
                 [Token::T_LABEL, 'Hello'],
                 [Token::T_WHITESPACE, ' '],
                 [Token::T_LABEL, 'this'],
                 [Token::T_WHITESPACE, ' '],
                 [Token::T_LABEL, 'is'],
                 [Token::T_WHITESPACE, "\n"],
-                [Token::T_PHPDOC_LEADING, ' * '],
+                [Token::T_ASTERISK, ' * '],
                 [Token::T_LABEL, 'Multi'],
                 [Token::T_WHITESPACE, "\n"],
                 [Token::T_WHITESPACE, ' '],
@@ -99,6 +99,22 @@ class LexerTest extends TestCase
                 [Token::T_WHITESPACE, ' '],
                 [Token::T_LABEL, 'Foobar'],
                 [Token::T_BRACKET_CURLY_CLOSE, '}'],
+            ]
+        ];
+        yield [
+            'Foobar::FOOBAR_*',
+            [
+                [Token::T_LABEL, 'Foobar'],
+                [Token::T_DOUBLE_COLON, '::'],
+                [Token::T_LABEL, 'FOOBAR_*'],
+            ]
+        ];
+        yield [
+            'Foobar::*',
+            [
+                [Token::T_LABEL, 'Foobar'],
+                [Token::T_DOUBLE_COLON, '::'],
+                [Token::T_LABEL, 'FOOBAR_*'],
             ]
         ];
     }

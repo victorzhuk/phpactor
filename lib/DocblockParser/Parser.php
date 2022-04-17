@@ -334,15 +334,13 @@ final class Parser
 
         if (
             $this->tokens->peekIs(0, Token::T_DOUBLE_COLON) &&
-            $this->tokens->peekIs(2, Token::T_LABEL)
+            $this->tokens->peekIs(1, Token::T_LABEL)
         ) {
-            $c = new ConstantNode(
+            return new ConstantNode(
                 $classNode,
                 $this->tokens->chomp(),
                 $this->tokens->chomp(),
             );
-
-            return $c;
         }
 
         return $classNode;
@@ -472,7 +470,7 @@ final class Parser
             if ($this->tokens->current->type === Token::T_PHPDOC_CLOSE) {
                 break;
             }
-            if ($this->tokens->current->type === Token::T_PHPDOC_LEADING) {
+            if ($this->tokens->current->type === Token::T_ASTERISK) {
                 break;
             }
             if (false !== strpos($this->tokens->current->value, "\n")) {
